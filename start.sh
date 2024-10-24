@@ -3,7 +3,7 @@
 # Minecraft Bedrock server startup script using screen
 
 # Set path variable
-USERPATH="/home/minecraft/.local/bin:/home/minecraft/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin"
+USERPATH="pathvariable"
 PathLength=${#USERPATH}
 if [[ "$PathLength" -gt 12 ]]; then
     PATH="$USERPATH"
@@ -22,13 +22,13 @@ RandNum=$((1 + $RANDOM % 5000))
 
 # Check if server is already started
 ScreenWipe=$(screen -wipe 2>&1)
-if screen -list | grep -q '\.Spain_Realm_1\s'; then
-    echo "Server is already started!  Press screen -r Spain_Realm_1 to open it"
+if screen -list | grep -q '\.servername\s'; then
+    echo "Server is already started!  Press screen -r servername to open it"
     exit 1
 fi
 
 # Change directory to server directory
-cd /home/minecraft/minecraftbe/Spain_Realm_1
+cd dirname/minecraftbe/servername
 
 # Create logs/backups/downloads folder if it doesn't exist
 if [ ! -d "logs" ]; then
@@ -64,23 +64,23 @@ while [ -z "$DefaultRoute" ]; do
 done
 
 # Take ownership of server files and set correct permissions
-Permissions=$(sudo bash /home/minecraft/minecraftbe/Spain_Realm_1/fixpermissions.sh -a)
+Permissions=$(sudo bash dirname/minecraftbe/servername/fixpermissions.sh -a)
 
 # Create backup
 if [ -d "worlds" ]; then
-    echo "Backing up server (to minecraftbe/Spain_Realm_1/backups folder)"
+    echo "Backing up server (to minecraftbe/servername/backups folder)"
     if [ -n "$(which pigz)" ]; then
-        echo "Backing up server (multiple cores) to minecraftbe/Spain_Realm_1/backups folder"
+        echo "Backing up server (multiple cores) to minecraftbe/servername/backups folder"
         tar -I pigz -pvcf backups/$(date +%Y.%m.%d.%H.%M.%S).tar.gz worlds
     else
-        echo "Backing up server (single cored) to minecraftbe/Spain_Realm_1/backups folder"
+        echo "Backing up server (single cored) to minecraftbe/servername/backups folder"
         tar -pzvcf backups/$(date +%Y.%m.%d.%H.%M.%S).tar.gz worlds
     fi
 fi
 
 # Rotate backups -- keep most recent 10
 Rotate=$(
-    pushd /home/minecraft/minecraftbe/Spain_Realm_1/backups
+    pushd dirname/minecraftbe/servername/backups
     ls -1tr | head -n -10 | xargs -d '\n' rm -f --
     popd
 )
@@ -125,12 +125,12 @@ else
 
         # Install version of Minecraft requested
         if [ ! -z "$DownloadFile" ]; then
-            if [ ! -e /home/minecraft/minecraftbe/Spain_Realm_1/server.properties ]; then
+            if [ ! -e dirname/minecraftbe/servername/server.properties ]; then
                 unzip -o "downloads/$DownloadFile" -x "*permissions.json*" "*whitelist.json*" "*valid_known_packs.json*" "*allowlist.json*"
             else
                 unzip -o "downloads/$DownloadFile" -x "*server.properties*" "*permissions.json*" "*whitelist.json*" "*valid_known_packs.json*" "*allowlist.json*"
             fi
-            Permissions=$(chmod u+x /home/minecraft/minecraftbe/Spain_Realm_1/bedrock_server >/dev/null)
+            Permissions=$(chmod u+x dirname/minecraftbe/servername/bedrock_server >/dev/null)
             echo "$DownloadFile" >version_installed.txt
         fi
     elif [[ "$InstalledFile" == "$LatestFile" ]]; then
@@ -147,45 +147,45 @@ else
 
         # Install version of Minecraft requested
         if [ ! -z "$DownloadFile" ]; then
-            if [ ! -e /home/minecraft/minecraftbe/Spain_Realm_1/server.properties ]; then
+            if [ ! -e dirname/minecraftbe/servername/server.properties ]; then
                 unzip -o "downloads/$DownloadFile" -x "*permissions.json*" "*whitelist.json*" "*valid_known_packs.json*" "*allowlist.json*"
             else
                 unzip -o "downloads/$DownloadFile" -x "*server.properties*" "*permissions.json*" "*whitelist.json*" "*valid_known_packs.json*" "*allowlist.json*"
             fi
-            Permissions=$(chmod u+x /home/minecraft/minecraftbe/Spain_Realm_1/bedrock_server >/dev/null)
+            Permissions=$(chmod u+x dirname/minecraftbe/servername/bedrock_server >/dev/null)
             echo "$DownloadFile" >version_installed.txt
         fi
     fi
 fi
 
-if [ ! -e /home/minecraft/minecraftbe/Spain_Realm_1/allowlist.json ]; then
+if [ ! -e dirname/minecraftbe/servername/allowlist.json ]; then
     echo "Creating default allowlist.json..."
-    echo '[]' >/home/minecraft/minecraftbe/Spain_Realm_1/allowlist.json
+    echo '[]' >dirname/minecraftbe/servername/allowlist.json
 fi
-if [ ! -e /home/minecraft/minecraftbe/Spain_Realm_1/permissions.json ]; then
+if [ ! -e dirname/minecraftbe/servername/permissions.json ]; then
     echo "Creating default permissions.json..."
-    echo '[]' >/home/minecraft/minecraftbe/Spain_Realm_1/permissions.json
+    echo '[]' >dirname/minecraftbe/servername/permissions.json
 fi
-ContentLogging=$(grep "content-log-file-enabled" /home/minecraft/minecraftbe/Spain_Realm_1/server.properties)
+ContentLogging=$(grep "content-log-file-enabled" dirname/minecraftbe/servername/server.properties)
 if [ -z "$ContentLogging" ]; then
-    echo "" >> /home/minecraft/minecraftbe/Spain_Realm_1/server.properties
-    echo "content-log-file-enabled=true" >> /home/minecraft/minecraftbe/Spain_Realm_1/server.properties
-    echo "# Enables logging content errors to a file" >> /home/minecraft/minecraftbe/Spain_Realm_1/server.properties
+    echo "" >> dirname/minecraftbe/servername/server.properties
+    echo "content-log-file-enabled=true" >> dirname/minecraftbe/servername/server.properties
+    echo "# Enables logging content errors to a file" >> dirname/minecraftbe/servername/server.properties
 fi
 
-echo "Starting Minecraft server.  To view window type screen -r Spain_Realm_1"
+echo "Starting Minecraft server.  To view window type screen -r servername"
 echo "To minimize the window and let the server run in the background, press Ctrl+A then Ctrl+D"
 
 CPUArch=$(uname -m)
 if [[ "$CPUArch" == *"aarch64"* ]]; then
-    cd /home/minecraft/minecraftbe/Spain_Realm_1
+    cd dirname/minecraftbe/servername
     if [ -n "$(which box64)" ]; then
         BASH_CMD="box64 bedrock_server"
     else
-        BASH_CMD="LD_LIBRARY_PATH=/home/minecraft/minecraftbe/Spain_Realm_1 /home/minecraft/minecraftbe/Spain_Realm_1/bedrock_server"
+        BASH_CMD="LD_LIBRARY_PATH=dirname/minecraftbe/servername dirname/minecraftbe/servername/bedrock_server"
     fi
 else
-    BASH_CMD="LD_LIBRARY_PATH=/home/minecraft/minecraftbe/Spain_Realm_1 /home/minecraft/minecraftbe/Spain_Realm_1/bedrock_server"
+    BASH_CMD="LD_LIBRARY_PATH=dirname/minecraftbe/servername dirname/minecraftbe/servername/bedrock_server"
 fi
 
 if command -v gawk &>/dev/null; then
@@ -193,4 +193,4 @@ if command -v gawk &>/dev/null; then
 else
     echo "gawk application was not found -- timestamps will not be available in the logs.  Please delete SetupMinecraft.sh and run the script the new recommended way!"
 fi
-screen -L -Logfile logs/Spain_Realm_1.$(date +%Y.%m.%d.%H.%M.%S).log -dmS Spain_Realm_1 /bin/bash -c "${BASH_CMD}"
+screen -L -Logfile logs/servername.$(date +%Y.%m.%d.%H.%M.%S).log -dmS servername /bin/bash -c "${BASH_CMD}"
