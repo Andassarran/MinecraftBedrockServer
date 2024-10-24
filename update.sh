@@ -17,4 +17,4 @@ if [ $(id -u) = 0 ]; then
    exit 1
 fi
 
-curl https://raw.githubusercontent.com/TheRemote/MinecraftBedrockServer/master/SetupMinecraft.sh | bash
+curl https://github.com/Andassarran/MinecraftBedrockServer/blob/e7d4796b8515ff2e5066e04460d66601f4e8bcde/SetupMinecraft.sh | bash
